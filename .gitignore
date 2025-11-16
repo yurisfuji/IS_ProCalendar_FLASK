@@ -1,0 +1,16 @@
+# PyCharm
+.idea/
+*.iws
+*.iml
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
+venv/
+.env/
+
+# Данные
+*.db
+*.sqlite3
