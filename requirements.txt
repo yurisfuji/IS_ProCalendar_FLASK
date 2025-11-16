@@ -1,5 +1,8 @@
-Flask
 sqlmodel
+psycopg2-binary
+flask
 pandas
-Pillow
+python-dotenv
 openpyxl
+pillow
+werkzeug
