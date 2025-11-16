@@ -24,6 +24,13 @@ from models import Equipment, EquipmentType, Job, Order, Calendar, JobHistory, H
 
 app = Flask(__name__)
 
+# Конфигурация для продакшена
+app.config.update(
+    SECRET_KEY=os.environ.get('SECRET_KEY', 'dev-secret-key'),
+    DEBUG=os.environ.get('DEBUG', 'False').lower() == 'true',
+    HOST=os.environ.get('HOST', '0.0.0.0'),
+    PORT=int(os.environ.get('PORT', 8080))
+)
 
 class ThemeManager:
     def __init__(self):
@@ -845,7 +852,19 @@ def calculate_job_finish():
         }), 500
 
 
+# Обработчик ошибок для продакшена
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({'success': False, 'error': 'Ресурс не найден'}), 404
+
+
+@app.errorhandler(500)
+def internal_error(error):
+    return jsonify({'success': False, 'error': 'Внутренняя ошибка сервера'}), 500
+
+
 if __name__ == '__main__':
+    # Инициализация базы данных
     create_db_and_tables()
     init_backup_dirs()
 
@@ -882,4 +901,9 @@ if __name__ == '__main__':
         import traceback
         traceback.print_exc()
 
-    app.run(debug=True, port=8080)
+    # Запуск приложения с конфигурацией из переменных окружения
+    app.run(
+        host=app.config['HOST'],
+        port=app.config['PORT'],
+        debug=app.config['DEBUG']
+    )
