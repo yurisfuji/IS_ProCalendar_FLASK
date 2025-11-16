@@ -285,55 +285,67 @@ export default class OrdersManager {
         const order = orderId ? this.ordersData.orders.find(o => o.id === orderId) : null;
 
         const modalHtml = `
-            <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full">
-                    <div class="p-6">
-                        <h3 class="text-xl font-semibold dark:text-white mb-4">
-                            ${order ? '✏️ Редактировать заказ' : '📋 Новый заказ'}
-                        </h3>
-                        
-                        <form id="order-form" class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium dark:text-gray-300 mb-1">
-                                    Наименование заказа*
-                                </label>
-                                <input type="text" name="name" value="${order?.name || ''}"
-                                       class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                                       placeholder="Введите название заказа..." required>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-medium dark:text-gray-300 mb-1">
-                                    Цвет заказа*
-                                </label>
-                                <input type="color" name="color" value="${order?.color || '#0000FF'}"
-                                       class="w-full h-10 rounded border border-gray-300 dark:border-gray-600">
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-medium dark:text-gray-300 mb-1">
-                                    Количество
-                                </label>
-                                <input type="number" name="quantity" value="${order?.quantity || 1}"
-                                       class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                                       min="1" required>
-                            </div>
-                        </form>
-                        
-                        <div class="flex justify-end space-x-3 mt-6">
-                            <button onclick="app.closeModal()"
-                                    class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                                Отмена
-                            </button>
-                            <button onclick="app.ordersManager.${order ? 'updateOrder' : 'addOrder'}(${orderId || ''})"
-                                    class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors">
-                                ${order ? 'Обновить' : 'Добавить'}
-                            </button>
+        <div class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div class="modal-dialog bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-hidden flex flex-col">
+                <!-- Заголовок для перетаскивания -->
+                <div class="modal-header cursor-move bg-gray-50 dark:bg-gray-700 px-6 py-4 border-b border-gray-200 dark:border-gray-600 rounded-t-lg flex justify-between items-center select-none"
+                     id="modal-drag-handle">
+                    <h3 class="text-xl font-semibold text-gray-800 dark:text-white">
+                        ${order ? '✏️ Редактировать заказ' : '📋 Новый заказ'}
+                    </h3>
+                    <button onclick="app.closeModal()" 
+                            class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-2xl font-bold w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                        ×
+                    </button>
+                </div>
+                
+                <!-- Содержимое формы -->
+                <div class="modal-content flex-1 overflow-auto p-6">
+                    <form id="order-form" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium dark:text-gray-300 mb-1">
+                                Наименование заказа*
+                            </label>
+                            <input type="text" name="name" value="${order?.name || ''}"
+                                   class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                                   placeholder="Введите название заказа..." required>
                         </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium dark:text-gray-300 mb-1">
+                                Цвет заказа*
+                            </label>
+                            <input type="color" name="color" value="${order?.color || '#0800ff'}"
+                                   class="w-full h-10 rounded border border-gray-300 dark:border-gray-600 cursor-pointer">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium dark:text-gray-300 mb-1">
+                                Количество
+                            </label>
+                            <input type="number" name="quantity" value="${order?.quantity || 1}"
+                                   class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                                   min="1" required>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Кнопки действий -->
+                <div class="modal-footer bg-gray-50 dark:bg-gray-700 px-6 py-4 border-t border-gray-200 dark:border-gray-600 rounded-b-lg">
+                    <div class="flex justify-end space-x-3">
+                        <button onclick="app.closeModal()"
+                                class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
+                            Отмена
+                        </button>
+                        <button onclick="app.ordersManager.${order ? 'updateOrder' : 'addOrder'}(${orderId || ''})"
+                                class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors">
+                            ${order ? 'Обновить' : 'Добавить'}
+                        </button>
                     </div>
                 </div>
             </div>
-        `;
+        </div>
+    `;
 
         this.app.showModal(modalHtml);
     }

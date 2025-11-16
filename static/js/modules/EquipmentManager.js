@@ -302,13 +302,20 @@ export default class EquipmentManager {
         const type = typeId ? this.equipmentData.types.find(t => t.id === typeId) : null;
 
         const modalHtml = `
-            <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full">
-                    <div class="p-6">
+        <div class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div class="modal-dialog bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-hidden flex flex-col">
+                <!-- Заголовок для перетаскивания -->
+                <div class="modal-header cursor-move bg-gray-50 dark:bg-gray-700 px-6 py-4 border-b border-gray-200 dark:border-gray-600 rounded-t-lg flex justify-between items-center select-none"
+                     id="modal-drag-handle">
                         <h3 class="text-xl font-semibold dark:text-white mb-4">
                             ${type ? '✏️ Редактировать тип' : '🎨 Добавить тип оборудования'}
                         </h3>
-                        
+                        <button onclick="app.closeModal()" 
+                            class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-2xl font-bold w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                        ×
+                    </button>
+                   </div>
+                   <div class="modal-content flex-1 overflow-auto p-6">
                         <form id="type-form" class="space-y-4">
                             <div>
                                 <label class="block text-sm font-medium dark:text-gray-300 mb-1">
@@ -327,7 +334,8 @@ export default class EquipmentManager {
                                        class="w-full h-10 rounded border border-gray-300 dark:border-gray-600">
                             </div>
                         </form>
-                        
+                  </div>      
+                   <div class="modal-footer bg-gray-50 dark:bg-gray-700 px-6 py-4 border-t border-gray-200 dark:border-gray-600 rounded-b-lg">
                         <div class="flex justify-end space-x-3 mt-6">
                             <button onclick="app.closeModal()"
                                     class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
@@ -363,13 +371,20 @@ export default class EquipmentManager {
         const types = this.equipmentData.types.sort((a, b) => a.sort_order - b.sort_order);
 
         const modalHtml = `
-            <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full">
-                    <div class="p-6">
+           <div class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+             <div class="modal-dialog bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-hidden flex flex-col">
+                <!-- Заголовок для перетаскивания -->
+                <div class="modal-header cursor-move bg-gray-50 dark:bg-gray-700 px-6 py-4 border-b border-gray-200 dark:border-gray-600 rounded-t-lg flex justify-between items-center select-none"
+                     id="modal-drag-handle">
                         <h3 class="text-xl font-semibold dark:text-white mb-4">
                             ${equipment ? '✏️ Редактировать оборудование' : '🏭 Добавить оборудование'}
                         </h3>
-                        
+                        <button onclick="app.closeModal()" 
+                            class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-2xl font-bold w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+                        ×
+                    </button>
+                     </div>   
+                     <div class="modal-content flex-1 overflow-auto p-6">
                         <form id="equipment-form" class="space-y-4">
                             <div>
                                 <label class="block text-sm font-medium dark:text-gray-300 mb-1">
@@ -400,8 +415,9 @@ export default class EquipmentManager {
                                 <label class="text-sm dark:text-gray-300">Показывать на диаграмме</label>
                             </div>
                         </form>
-                        
-                        <div class="flex justify-end space-x-3 mt-6">
+                     </div>   
+                      <div class="modal-footer bg-gray-50 dark:bg-gray-700 px-6 py-4 border-t border-gray-200 dark:border-gray-600 rounded-b-lg">
+                          <div class="flex justify-end space-x-3">
                             <button onclick="app.closeModal()"
                                     class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                                 Отмена

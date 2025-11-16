@@ -18,10 +18,10 @@ class App {
         this.delete_button_class = "p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors tooltip"
         this.cant_delete_button_class = "p-2 flex items-center justify-center rounded bg-gray-300 dark:bg-gray-600 cursor-not-allowed"
 
-        this.sun_svg = '<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" stroke="currentColor">\n' +
+        this.sun_svg = '<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16">\n' +
             '    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>\n' +
             '</svg>'
-        this.moon_svg = '<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" stroke="currentColor">\n' +
+        this.moon_svg = '<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16">\n' +
             '    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>\n' +
             '</svg>'
 
@@ -77,7 +77,8 @@ class App {
             const data = await response.json();
             this.isDark = data.is_dark;
             this.applyTheme(this.isDark);
-            this.ganttManager.renderGanttChart(this.ganttManager.ganttSettings)
+            if (this.currentPage == "gantt")
+                this.ganttManager.renderGanttChart(this.ganttManager.ganttSettings)
 
         } catch (error) {
             console.error('Ошибка переключения темы:', error);
@@ -121,6 +122,9 @@ class App {
                 localStorage.setItem('lastVisitedPage', page);
                 this.loadPage(page);
                 this.updateActiveNavButton(page);
+                this.toggleQuickActionsVisibility((page === "gantt"));
+                if (page !== "gantt")
+                    await this.updateJobDetails(null);
                 this.ganttManager.updateJobMoveButtonsVisibility();
             } else {
                 throw new Error('Navigation failed');
@@ -238,7 +242,7 @@ class App {
             // Инициализация специфичных для страницы функций
             if (page === 'gantt') {
                 await this.ganttManager.initGanttPage();
-                await this.ganttManager.updateJobDetails(null);
+                await this.updateJobDetails(null);
             }
 
             this.ganttManager.updateJobMoveButtonsVisibility();
@@ -273,14 +277,14 @@ class App {
         return `
             <div class="max-w-4xl mx-auto">
                 <div class="text-center mb-12">
-                    <h2 class="text-4xl font-bold dark:text-white mb-4">Добро пожаловать в IS ProCalendar</h2>
-                    <p class="text-xl dark:text-gray-300">Система управления производственным календарем</p>
+                    <h2 class="text-4xl font-bold text-black dark:text-white mb-4">Добро пожаловать в IS ProCalendar</h2>
+                    <p class="text-xl text-gray-700 dark:text-gray-300">Система управления производственным календарем</p>
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
-                        <h3 class="text-xl font-semibold dark:text-white mb-3">📊 Диаграмма Ганта</h3>
-                        <p class="dark:text-gray-300 mb-4">Визуализация производственного плана с временными интервалами</p>
+                        <h3 class="text-xl font-semibold text-black dark:text-white mb-3">📊 Диаграмма Ганта</h3>
+                        <p class="text-gray-700 dark:text-gray-300 mb-4">Визуализация производственного плана с временными интервалами</p>
                         <button onclick="app.navigateTo('gantt')" 
                                 class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg transition-colors">
                             Перейти к диаграмме
@@ -288,8 +292,8 @@ class App {
                     </div>
                     
                     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
-                        <h3 class="text-xl font-semibold dark:text-white mb-3">🏭 Оборудование</h3>
-                        <p class="dark:text-gray-300 mb-4">Управление типами оборудования и их настройками</p>
+                        <h3 class="text-xl font-semibold text-black dark:text-white mb-3">🏭 Оборудование</h3>
+                        <p class="text-gray-700 dark:text-gray-300 mb-4">Управление типами оборудования и их настройками</p>
                         <button onclick="app.navigateTo('equipment')" 
                                 class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg transition-colors">
                             Управление оборудованием
@@ -297,8 +301,8 @@ class App {
                     </div>
                     
                     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
-                        <h3 class="text-xl font-semibold dark:text-white mb-3">📋 Заказы</h3>
-                        <p class="dark:text-gray-300 mb-4">Создание и отслеживание производственных заказов</p>
+                        <h3 class="text-xl font-semibold text-black dark:text-white mb-3">📋 Заказы</h3>
+                        <p class="text-gray-700 dark:text-gray-300 mb-4">Создание и отслеживание производственных заказов</p>
                         <button onclick="app.navigateTo('orders')" 
                                 class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg transition-colors">
                             Управление заказами
@@ -306,8 +310,8 @@ class App {
                     </div>
                     
                     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
-                        <h3 class="text-xl font-semibold dark:text-white mb-3">⚙️ Работы</h3>
-                        <p class="dark:text-gray-300 mb-4">Планирование и учет производственных работ</p>
+                        <h3 class="text-xl font-semibold text-black dark:text-white mb-3">⚙️ Работы</h3>
+                        <p class="text-gray-700 dark:text-gray-300 mb-4">Планирование и учет производственных работ</p>
                         <button onclick="app.navigateTo('jobs')" 
                                 class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg transition-colors">
                             Управление работами
@@ -397,7 +401,11 @@ class App {
         const modalContainer = document.createElement('div');
         modalContainer.id = 'modal-container';
         modalContainer.innerHTML = html;
+
         document.body.appendChild(modalContainer);
+
+        // Инициализируем перетаскивание для модального окна
+        this.initModalDragging();
     }
 
     closeModal() {
@@ -577,6 +585,295 @@ class App {
             console.error('Ошибка очистки истории:', error);
             this.showNotification('❌ Ошибка очистки истории', 'error');
         }
+    }
+
+    async updateJobDetails(job) {
+        const jobDetailsElement = document.getElementById('job-details');
+        if (!jobDetailsElement) return;
+        this.toggleQuickActionsVisibility(job);
+
+        if (!job) {
+            jobDetailsElement.innerHTML = `
+            <div class="text-center py-4 text-gray-500 dark:text-gray-400">
+                Выберите работу на диаграмме
+            </div>
+        `;
+            return;
+        }
+
+        try {
+            // Получаем полную информацию о работе
+            const response = await fetch(`/api/jobs/${job.id}`);
+            if (!response.ok) throw new Error('Ошибка загрузки данных работы');
+
+            const result = await response.json();
+            if (!result.success) throw new Error(result.message);
+
+            const jobData = result.job;
+
+            const date_format_options = {
+                day: '2-digit',
+                month: '2-digit',
+                year: '2-digit'
+            }
+
+            // Получаем информацию о заказе для тиража
+            const orderResponse = await fetch(`/api/orders/${jobData.order_id}`);
+            const orderResult = await orderResponse.json();
+            const quantity = orderResult.success ? orderResult.order.quantity : 'Неизвестно';
+            const orderName = orderResult.success ? orderResult.order.name : '';
+
+            // Рассчитываем время финиша и расписание
+            const finishData = await this.calculateJobFinishData(jobData);
+
+            // Форматируем даты
+            const startDate = new Date(jobData.start_date);
+            const formattedStartDate = startDate.toLocaleDateString('ru-RU', date_format_options);
+            //const formattedStartTime = this.formatTime(jobData.hour_offset);
+
+            const finishDate = new Date(finishData.finish_date);
+            const formattedFinishDate = finishDate.toLocaleDateString('ru-RU', date_format_options);
+            //const formattedFinishTime = this.formatTime(finishData.finish_offset);
+
+            // Генерируем HTML для деталей
+            jobDetailsElement.innerHTML = `
+            <div class="space-y-1 p-2 text-black dark:text-gray-300">
+                <div class="flex justify-between">
+                    <span class="font-medium">Заказ:</span>
+                    <span>${orderName}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="font-medium">Тираж:</span>
+                    <span>${quantity}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="font-medium">Время старта:</span>
+                    <span>${formattedStartDate}  (${jobData.hour_offset})</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="font-medium">Длительность:</span>
+                    <span>${jobData.duration_hours} ч</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="font-medium">Время финиша:</span>
+                    <span>${formattedFinishDate} (${finishData.finish_offset})</span>
+                </div>
+                <div class="border-t border-gray-300 dark:border-gray-600 pt-2">
+                    <div class="font-medium mb-1">Расписание по дням:</div>
+                    <div class="space-y-1 text-xs">
+                        ${this.generateDailyScheduleHTML(finishData.daily_schedule)}
+                    </div>
+                </div>
+            </div>
+        `;
+
+        } catch (error) {
+            console.error('Ошибка загрузки деталей работы:', error);
+            jobDetailsElement.innerHTML = `
+            <div class="text-center py-4 text-red-500">
+                Ошибка загрузки данных
+            </div>
+        `;
+        }
+    }
+
+    // Вспомогательный метод для расчета данных финиша
+    async calculateJobFinishData(jobData) {
+        try {
+            const response = await fetch('/api/jobs/calculate-finish', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    start_date: jobData.start_date,
+                    duration_hours: jobData.duration_hours,
+                    hour_offset: jobData.hour_offset || 0
+                })
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                if (result.success) {
+                    return result.data;
+                }
+            }
+
+            // Fallback: простой расчет если API недоступно
+            const startDate = new Date(jobData.start_date);
+            const finishDate = new Date(startDate.getTime() + jobData.duration_hours * 60 * 60 * 1000);
+
+            return {
+                finish_date: finishDate.toISOString().split('T')[0],
+                finish_offset: (jobData.hour_offset || 0) + jobData.duration_hours,
+                daily_schedule: [{
+                    date: jobData.start_date,
+                    hours: jobData.duration_hours,
+                    offset: jobData.hour_offset || 0
+                }]
+            };
+
+        } catch (error) {
+            console.error('Ошибка расчета финиша:', error);
+            throw error;
+        }
+    }
+
+    // Вспомогательный метод для форматирования времени
+    formatTime(hours) {
+        const totalMinutes = Math.round(hours * 60);
+        const h = Math.floor(totalMinutes / 60);
+        const m = totalMinutes % 60;
+        return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+    }
+
+    // Вспомогательный метод для генерации HTML расписания по дням
+    generateDailyScheduleHTML(schedule) {
+        if (!schedule || schedule.length === 0) {
+            return '<div class="text-gray-500">Нет данных о расписании</div>';
+        }
+
+        return schedule.map(day => {
+            const date = new Date(day.date);
+            const formattedDate = date.toLocaleDateString('ru-RU', {
+                day: '2-digit',
+                month: '2-digit',
+                year: '2-digit',
+            });
+            const startOffset = day.offset >= 10 ? day.offset.toFixed(2) : "0" + day.offset.toFixed(2);
+            const finishOffset = (day.offset + day.hours) >= 10 ? (day.offset + day.hours).toFixed(2) : "0" + (day.offset + day.hours).toFixed(2);
+            const endTime = this.formatTime(day.offset + day.hours);
+
+            return `
+            <div class="flex justify-start items-center py-0">
+                <span class="w-16">${formattedDate}</span>
+                <span class="font-mono w-24">${startOffset}-${finishOffset}</span>
+                <span class="text-gray-500">(${day.hours}ч)</span>
+            </div>
+        `;
+        }).join('');
+    }
+
+    toggleQuickActionsVisibility(show) {
+        const quickActions = document.querySelector('.quick-actions');
+        if (!quickActions) return;
+
+        if (!show) {
+            quickActions.classList.remove('hidden');
+        } else {
+            quickActions.classList.add('hidden');
+        }
+    }
+
+    initModalDragging() {
+        const modalContainer = document.getElementById('modal-container');
+        if (!modalContainer) return;
+
+        // Находим элементы модального окна
+        const modalDialog = modalContainer.querySelector('.modal-dialog');
+        const dragHandle = modalContainer.querySelector('#modal-drag-handle');
+
+        if (!modalDialog || !dragHandle) return;
+
+        let isDragging = false;
+        let startX, startY, initialLeft, initialTop;
+
+        // Функция для установки позиции
+        const setPosition = (left, top) => {
+            const maxLeft = window.innerWidth - modalDialog.offsetWidth - 20;
+            const maxTop = window.innerHeight - modalDialog.offsetHeight - 20;
+
+            const boundedLeft = Math.max(20, Math.min(left, maxLeft));
+            const boundedTop = Math.max(20, Math.min(top, maxTop));
+
+            modalDialog.style.position = 'fixed';
+            modalDialog.style.left = `${boundedLeft}px`;
+            modalDialog.style.top = `${boundedTop}px`;
+            modalDialog.style.margin = '0';
+            modalDialog.style.transform = 'none';
+        };
+
+        // Центрируем модальное окно при открытии
+        setTimeout(() => {
+            const rect = modalDialog.getBoundingClientRect();
+            const centerX = (window.innerWidth - rect.width) / 2;
+            const centerY = (window.innerHeight - rect.height) / 2;
+            setPosition(centerX, centerY);
+        }, 10);
+
+        // Обработчики для drag handle
+        dragHandle.addEventListener('mousedown', startDrag);
+        dragHandle.addEventListener('touchstart', startDragTouch);
+
+        function startDrag(e) {
+            isDragging = true;
+            const rect = modalDialog.getBoundingClientRect();
+            startX = e.clientX;
+            startY = e.clientY;
+            initialLeft = rect.left;
+            initialTop = rect.top;
+
+            document.addEventListener('mousemove', onDrag);
+            document.addEventListener('mouseup', stopDrag);
+
+            // Визуальная обратная связь
+            dragHandle.style.cursor = 'grabbing';
+            modalDialog.style.boxShadow = '0 20px 40px rgba(0,0,0,0.3)';
+
+            e.preventDefault();
+        }
+
+        function startDragTouch(e) {
+            if (e.touches.length !== 1) return;
+
+            isDragging = true;
+            const rect = modalDialog.getBoundingClientRect();
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+            initialLeft = rect.left;
+            initialTop = rect.top;
+
+            document.addEventListener('touchmove', onDragTouch);
+            document.addEventListener('touchend', stopDrag);
+
+            e.preventDefault();
+        }
+
+        function onDrag(e) {
+            if (!isDragging) return;
+
+            const deltaX = e.clientX - startX;
+            const deltaY = e.clientY - startY;
+
+            setPosition(initialLeft + deltaX, initialTop + deltaY);
+        }
+
+        function onDragTouch(e) {
+            if (!isDragging || e.touches.length !== 1) return;
+
+            const deltaX = e.touches[0].clientX - startX;
+            const deltaY = e.touches[0].clientY - startY;
+
+            setPosition(initialLeft + deltaX, initialTop + deltaY);
+
+            e.preventDefault();
+        }
+
+        function stopDrag() {
+            isDragging = false;
+            document.removeEventListener('mousemove', onDrag);
+            document.removeEventListener('touchmove', onDragTouch);
+            document.removeEventListener('mouseup', stopDrag);
+            document.removeEventListener('touchend', stopDrag);
+
+            // Возвращаем нормальный курсор и тень
+            dragHandle.style.cursor = 'move';
+            modalDialog.style.boxShadow = '';
+        }
+
+        // Предотвращаем выделение текста при перетаскивании
+        dragHandle.style.userSelect = 'none';
+        dragHandle.style.webkitUserSelect = 'none';
     }
 
 }

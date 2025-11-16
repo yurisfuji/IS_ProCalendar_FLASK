@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IS ProCalendar</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tailwind.css') }}">
+    <script src="{{ url_for('static', filename='js/tailwind.min.js') }}"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -14,13 +15,14 @@
 </head>
 <body class="bg-gray-100 dark:bg-gray-900">
 <!-- Header -->
-<header class="bg-blue-800 text-white px-4 py-0 shadow-lg fixed top-0 left-0 right-0 z-50">
+<header class="bg-blue-800 text-white px-8 py-0 shadow-lg fixed top-0 left-0 right-0 z-50">
     <div class="flex items-center justify-between w-full">
         <!-- Логотип и название -->
         <div class="flex items-center">
             <img src="{{ url_for('static', filename='images/logo.jpg') }}"
                  alt="Logo"
-                 class="w-20 h-20 object-contain mr-3">
+                 onclick="app.navigateTo('home')"
+                 class="w-20 h-20 object-contain mr-3 cursor-pointer">
             <h1 class="text-2xl font-bold">Производственный календарь</h1>
         </div>
 
@@ -31,28 +33,28 @@
                     data-page="calendar" onclick="app.navigateTo('calendar')">
                 📅 Календарь
             </button>
-            <button class="nav-btn px-4 py-2 rounded-lg font-medium"
+            <button class="nav-btn bg-transparent hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
                     data-page="equipment"
                     onclick="app.navigateTo('equipment')">
                 🏭 Оборудование
             </button>
-            <button class="nav-btn px-4 py-2 rounded-lg font-medium"
+            <button class="nav-btn bg-transparent hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
                     data-page="orders"
                     onclick="app.navigateTo('orders')">
                 📋 Заказы
             </button>
-            <button class="nav-btn px-4 py-2 rounded-lg font-medium"
+            <button class="nav-btn bg-transparent hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
                     data-page="jobs"
                     onclick="app.navigateTo('jobs')">
                 ⚙️ Работы
             </button>
-            <button class="nav-btn px-4 py-2 rounded-lg font-medium"
+            <button class="nav-btn bg-transparent hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
                     data-page="gantt"
                     onclick="app.navigateTo('gantt')">
                 📊 Диаграмма
             </button>
             <!-- Кнопки управления историей -->
-            <div class="flex items-center space-x-1 border-l border-gray-600 pl-2 ml-2">
+            <div class="flex items-center space-x-2 border-l border-gray-600 px-4 ml-2">
                 <button id="undo-btn"
                         onclick="window.app.historyManager.undo()"
                         class="undo-redo-btn w-4 h-6 bg-red-700 hover:bg-red-600 text-white  rounded-lg transition-colors tooltip flex items-center justify-center"
@@ -72,9 +74,9 @@
             </div>
             <!-- Переключатель темы -->
             <button id="theme-toggle"
-                    class="theme-btn w-4 h-4 rounded-full flex items-center justify-center ml-4"
+                    class="theme-btn w-10 h-10 hover:bg-blue-600 rounded-full flex items-center border-double border-4 justify-center ml-4"
                     onclick="app.toggleTheme()">
-                    <span id="theme-icon" class="w-5 h-5">
+                    <span id="theme-icon">
                     </span>
             </button>
         </div>

@@ -380,25 +380,39 @@ export default class GanttManager {
         const container = document.querySelector('.gantt-container');
         if (!container) return;
 
-        // Рассчитываем доступную высоту
-        const availableHeight = window.innerHeight - 300; // minus headers, controls, status
+        // Находим все элементы выше контейнера
+        const header = document.querySelector('header');
+        const ganttControls = document.querySelector('.gantt-page-container');
+        const ganttControls2 = document.querySelector('.gantt-controls');
 
-        console.log('Available height:', availableHeight);
+        // Рассчитываем общую высоту занятых элементов
+        let occupiedHeight = 0;
 
-        // Устанавливаем только высоту контейнера
-        container.style.height = `${Math.max(300, availableHeight)}px`;
+        if (header) occupiedHeight += header.offsetHeight;
+        if (ganttControls) occupiedHeight += ganttControls.offsetHeight;
+        if (ganttControls2) occupiedHeight += ganttControls2.offsetHeight;
 
-        console.log(`Gantt container height adjusted: ${availableHeight}px`);
+        // Добавляем отступы (примерно 20px сверху и снизу)
+        const padding = 40;
 
-        // Обновляем viewport info если на странице Ганта
-        if (this.currentPage === 'gantt') {
-            this.updateViewportInfo();
+        // Рассчитываем доступную высоту для контейнера
+        const availableHeight = window.innerHeight - occupiedHeight - padding;
 
-            // Автоматически подгоняем масштаб
-            setTimeout(() => {
-                //this.fitGanttScale();
-            }, 100);
-        }
+        console.log('Height calculation:', {
+            windowHeight: window.innerHeight,
+            occupiedHeight,
+            padding,
+            availableHeight
+        });
+
+        // Устанавливаем высоту контейнера (минимум 300px)
+        const finalHeight = Math.max(300, availableHeight);
+        container.style.height = `${finalHeight}px`;
+
+        console.log(`Gantt container height set to: ${finalHeight}px`);
+
+        // Обновляем viewport info
+        this.updateViewportInfo();
     }
 
     // Метод для подгонки масштаба (только масштаб!)
@@ -1038,12 +1052,12 @@ export default class GanttManager {
         `;
 
             // ОБНОВЛЯЕМ ДЕТАЛИ В SIDEBAR
-            this.updateJobDetails(this.selectedJob);
+            this.app.updateJobDetails(this.selectedJob);
         } else {
             jobInfoElement.innerHTML = '<span class="text-gray-500">Кликните по работе для выбора</span>';
 
             // ОЧИЩАЕМ ДЕТАЛИ В SIDEBAR
-            this.updateJobDetails(null);
+            this.aap.updateJobDetails(null);
         }
 
         // Обновляем видимость кнопок
@@ -1278,182 +1292,6 @@ export default class GanttManager {
 
     // В класс GanttManager добавьте метод:
 
-    async updateJobDetails(job) {
-        const jobDetailsElement = document.getElementById('job-details');
-        if (!jobDetailsElement) return;
-        this.toggleQuickActionsVisibility(job);
 
-        if (!job) {
-            jobDetailsElement.innerHTML = `
-            <div class="text-center py-4 text-gray-500 dark:text-gray-400">
-                Выберите работу на диаграмме
-            </div>
-        `;
-            return;
-        }
-
-        try {
-            // Получаем полную информацию о работе
-            const response = await fetch(`/api/jobs/${job.id}`);
-            if (!response.ok) throw new Error('Ошибка загрузки данных работы');
-
-            const result = await response.json();
-            if (!result.success) throw new Error(result.message);
-
-            const jobData = result.job;
-
-            const date_format_options = {
-                day: '2-digit',
-                month: '2-digit',
-                year: '2-digit'
-            }
-
-            // Получаем информацию о заказе для тиража
-            const orderResponse = await fetch(`/api/orders/${jobData.order_id}`);
-            const orderResult = await orderResponse.json();
-            const quantity = orderResult.success ? orderResult.order.quantity : 'Неизвестно';
-            const orderName = orderResult.success ? orderResult.order.name : '';
-
-            // Рассчитываем время финиша и расписание
-            const finishData = await this.calculateJobFinishData(jobData);
-
-            // Форматируем даты
-            const startDate = new Date(jobData.start_date);
-            const formattedStartDate = startDate.toLocaleDateString('ru-RU', date_format_options);
-            //const formattedStartTime = this.formatTime(jobData.hour_offset);
-
-            const finishDate = new Date(finishData.finish_date);
-            const formattedFinishDate = finishDate.toLocaleDateString('ru-RU', date_format_options);
-            //const formattedFinishTime = this.formatTime(finishData.finish_offset);
-
-            // Генерируем HTML для деталей
-            jobDetailsElement.innerHTML = `
-            <div class="space-y-1 p-2">
-                <div class="flex justify-between">
-                    <span class="font-medium">Заказ:</span>
-                    <span>${orderName}</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="font-medium">Тираж:</span>
-                    <span>${quantity}</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="font-medium">Время старта:</span>
-                    <span>${formattedStartDate}  (${jobData.hour_offset})</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="font-medium">Длительность:</span>
-                    <span>${jobData.duration_hours} ч</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="font-medium">Время финиша:</span>
-                    <span>${formattedFinishDate} (${finishData.finish_offset})</span>
-                </div>
-                <div class="border-t border-gray-300 dark:border-gray-600 pt-2">
-                    <div class="font-medium mb-1">Расписание по дням:</div>
-                    <div class="space-y-1 text-xs">
-                        ${this.generateDailyScheduleHTML(finishData.daily_schedule)}
-                    </div>
-                </div>
-            </div>
-        `;
-
-        } catch (error) {
-            console.error('Ошибка загрузки деталей работы:', error);
-            jobDetailsElement.innerHTML = `
-            <div class="text-center py-4 text-red-500">
-                Ошибка загрузки данных
-            </div>
-        `;
-        }
-    }
-
-    // Вспомогательный метод для расчета данных финиша
-    async calculateJobFinishData(jobData) {
-        try {
-            const response = await fetch('/api/jobs/calculate-finish', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    start_date: jobData.start_date,
-                    duration_hours: jobData.duration_hours,
-                    hour_offset: jobData.hour_offset || 0
-                })
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                if (result.success) {
-                    return result.data;
-                }
-            }
-
-            // Fallback: простой расчет если API недоступно
-            const startDate = new Date(jobData.start_date);
-            const finishDate = new Date(startDate.getTime() + jobData.duration_hours * 60 * 60 * 1000);
-
-            return {
-                finish_date: finishDate.toISOString().split('T')[0],
-                finish_offset: (jobData.hour_offset || 0) + jobData.duration_hours,
-                daily_schedule: [{
-                    date: jobData.start_date,
-                    hours: jobData.duration_hours,
-                    offset: jobData.hour_offset || 0
-                }]
-            };
-
-        } catch (error) {
-            console.error('Ошибка расчета финиша:', error);
-            throw error;
-        }
-    }
-
-    // Вспомогательный метод для форматирования времени
-    formatTime(hours) {
-        const totalMinutes = Math.round(hours * 60);
-        const h = Math.floor(totalMinutes / 60);
-        const m = totalMinutes % 60;
-        return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
-    }
-
-    // Вспомогательный метод для генерации HTML расписания по дням
-    generateDailyScheduleHTML(schedule) {
-        if (!schedule || schedule.length === 0) {
-            return '<div class="text-gray-500">Нет данных о расписании</div>';
-        }
-
-        return schedule.map(day => {
-            const date = new Date(day.date);
-            const formattedDate = date.toLocaleDateString('ru-RU', {
-                day: '2-digit',
-                month: '2-digit',
-                year: '2-digit',
-            });
-            const startOffset = day.offset >= 10 ? day.offset.toFixed(2) : "0"+ day.offset.toFixed(2);
-            const finishOffset = (day.offset+day.hours) >= 10 ? (day.offset+day.hours).toFixed(2) : "0"+ (day.offset+day.hours).toFixed(2);
-            const endTime = this.formatTime(day.offset + day.hours);
-
-            return `
-            <div class="flex justify-start items-center py-0">
-                <span class="w-16">${formattedDate}</span>
-                <span class="font-mono w-24">${startOffset}-${finishOffset}</span>
-                <span class="text-gray-500">(${day.hours}ч)</span>
-            </div>
-        `;
-        }).join('');
-    }
-
-    toggleQuickActionsVisibility(show) {
-        const quickActions = document.querySelector('.quick-actions');
-        if (!quickActions) return;
-
-        if (!show) {
-            quickActions.classList.remove('hidden');
-        } else {
-            quickActions.classList.add('hidden');
-        }
-    }
 
 }

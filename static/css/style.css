@@ -189,7 +189,7 @@
     overflow: auto;
     position: relative;
     min-width: 800px;
-    min-height: 500px;
+    height: calc(100vh - 300px) !important;
     transition: width 0.3s ease, height 0.3s ease;
 }
 
@@ -401,4 +401,25 @@
 /* Для поля с часами */
 .calendar-hours {
     pointer-events: none;
+}
+
+.modal-dialog {
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.modal-header {
+    transition: background-color 0.2s ease;
+}
+
+.modal-header:active {
+    background-color: #f3f4f6;
+}
+
+.dark .modal-header:active {
+    background-color: #4b5563;
+}
+
+/* Улучшаем внешний вид кнопки закрытия */
+.modal-header button:hover {
+    transform: scale(1.1);
 }

@@ -5,14 +5,19 @@ import zipfile
 import shutil
 from datetime import datetime
 from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Для Supabase
 if os.environ.get("SUPABASE_DB_URL"):
     DATABASE_URL = os.environ.get("SUPABASE_DB_URL", "sqlite:///production.db")
 else:
     DATABASE_URL = "sqlite:///production.db"
+
 engine = create_engine(DATABASE_URL, echo=False)
 
+print(DATABASE_URL)
 
 def create_db_and_tables():
     """Создает все таблицы в правильном порядке"""

@@ -149,7 +149,7 @@ export default class JobsManager {
         const formattedDate = startDate.toLocaleDateString('ru-RU');
 
         return `
-            <div class="job-item group bg-white dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg p-3 transition-colors border border-gray-200 dark:border-gray-700">
+            <div onclick="app.jobsManager.updateJobDetailsById(${job.id})" class="job-item group bg-white dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg p-3 transition-colors border border-gray-200 dark:border-gray-700">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-3 flex-1 min-w-0">
                         <!-- Цвет заказа -->
@@ -375,6 +375,7 @@ export default class JobsManager {
     // Модальное окно для работы (будет реализовано позже)
     async openJobModal(jobId = null, presetEquipmentId = null, presetStartDate = null) {
         try {
+            await this.app.updateJobDetails(null);
             // Загружаем данные для выпадающих списков
             const [ordersResponse, equipmentResponse] = await Promise.all([
                 fetch('/api/orders/list'),
@@ -405,105 +406,115 @@ export default class JobsManager {
             const finalStartDate = presetStartDate || jobData?.start_date || this.app.getTodayDate();
 
             const modalHtml = `
-            <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-                    <div class="p-6">
-                        <h3 class="text-xl font-semibold dark:text-white mb-4">
+        <div class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div class="modal-dialog bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-hidden flex flex-col">
+                <!-- Заголовок для перетаскивания -->
+                <div class="modal-header cursor-move bg-gray-50 dark:bg-gray-700 px-6 py-4 border-b border-gray-200 dark:border-gray-600 rounded-t-lg flex justify-between items-center select-none"
+                     id="modal-drag-handle">
+                    <h3 class="text-xl font-semibold text-gray-800 dark:text-white">
                             ${jobData ? '✏️ Редактировать работу' : '⚙️ Новая работа'}
                         </h3>
-                        
-                        <form id="job-form" class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium dark:text-gray-300 mb-1">
-                                    Заказ*
-                                </label>
-                                <select name="order_id" 
-                                        class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white" required>
-                                    <option value="">Выберите заказ</option>
-                                    ${ordersData.orders.map(order => `
-                                        <option value="${order.id}" ${jobData?.order_id === order.id ? 'selected' : ''}>
-                                            ${order.name}
-                                        </option>
-                                    `).join('')}
-                                </select>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-medium dark:text-gray-300 mb-1">
-                                    Оборудование*
-                                </label>
-                                <select name="equipment_id" 
-                                        class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white" required>
-                                    <option value="">Выберите оборудование</option>
-                                    ${equipmentData.equipment.map(eq => `
-                                        <option value="${eq.id}" ${finalEquipmentId === eq.id ? 'selected' : ''}>
-                                            ${eq.name}
-                                        </option>
-                                    `).join('')}
-                                </select>
-                            </div>
-                            
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium dark:text-gray-300 mb-1">
-                                        Длительность (часы)*
-                                    </label>
-                                    <input type="number" name="duration_hours" value="${jobData?.duration_hours || 8}"
-                                           class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                                           min="0.25" step="0.25" required>
-                                </div>
-                                
-                                <div>
-                                    <label class="block text-sm font-medium dark:text-gray-300 mb-1">
-                                        Смещение (часы)
-                                    </label>
-                                    <input type="number" name="hour_offset" value="${jobData?.hour_offset || 0}"
-                                           class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                                           min="0" step="0.25">
-                                </div>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-medium dark:text-gray-300 mb-1">
-                                    Дата начала*
-                                </label>
-                                <input type="date" name="start_date" value="${finalStartDate}"
-                                       class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white" required>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-medium dark:text-gray-300 mb-1">
-                                    Статус
-                                </label>
-                                <select name="status" 
-                                        class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                                    <option value="planned" ${jobData?.status === 'planned' ? 'selected' : ''}>📅 Запланирована</option>
-                                    <option value="started" ${jobData?.status === 'started' ? 'selected' : ''}>⚙️ В работе</option>
-                                    <option value="completed" ${jobData?.status === 'completed' ? 'selected' : ''}>✅ Завершена</option>
-                                </select>
-                            </div>
-                            
-                            <div class="flex items-center">
-                                <input type="checkbox" name="is_locked" ${jobData?.is_locked ? 'checked' : ''}
-                                       class="rounded text-red-500 focus:ring-red-500 mr-2">
-                                <label class="text-sm dark:text-gray-300">🔒 Заблокировать (запретить изменения)</label>
-                            </div>
-                        </form>
-                        
-                        <div class="flex justify-end space-x-3 mt-6">
-                            <button onclick="app.closeModal()"
-                                    class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                                Отмена
-                            </button>
-                            <button onclick="app.jobsManager.${jobData ? 'updateJob' : 'addJob'}(${jobId || ''})"
-                                    class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors">
-                                ${jobData ? 'Обновить' : 'Добавить'}
-                            </button>
+                        <button onclick="app.closeModal()" 
+                                class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-xl font-bold">
+                            ×
+                        </button>
+                    </div>
+                
+                <div class="modal-content flex-1 overflow-auto p-6">
+                    <form id="job-form" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium dark:text-gray-300 mb-1">
+                                Заказ*
+                            </label>
+                            <select name="order_id" 
+                                    class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white" required>
+                                <option value="">Выберите заказ</option>
+                                ${ordersData.orders.map(order => `
+                                    <option value="${order.id}" ${jobData?.order_id === order.id ? 'selected' : ''}>
+                                        ${order.name}
+                                    </option>
+                                `).join('')}
+                            </select>
                         </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium dark:text-gray-300 mb-1">
+                                Оборудование*
+                            </label>
+                            <select name="equipment_id" 
+                                    class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white" required>
+                                <option value="">Выберите оборудование</option>
+                                ${equipmentData.equipment.map(eq => `
+                                    <option value="${eq.id}" ${finalEquipmentId === eq.id ? 'selected' : ''}>
+                                        ${eq.name}
+                                    </option>
+                                `).join('')}
+                            </select>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium dark:text-gray-300 mb-1">
+                                    Длительность (часы)*
+                                </label>
+                                <input type="number" name="duration_hours" value="${jobData?.duration_hours || 8}"
+                                       class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                                       min="0.25" step="0.25" required>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium dark:text-gray-300 mb-1">
+                                    Смещение (часы)
+                                </label>
+                                <input type="number" name="hour_offset" value="${jobData?.hour_offset || 0}"
+                                       class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                                       min="0" step="0.25">
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium dark:text-gray-300 mb-1">
+                                Дата начала*
+                            </label>
+                            <input type="date" name="start_date" value="${finalStartDate}"
+                                   class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white" required>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium dark:text-gray-300 mb-1">
+                                Статус
+                            </label>
+                            <select name="status" 
+                                    class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                <option value="planned" ${jobData?.status === 'planned' ? 'selected' : ''}>📅 Запланирована</option>
+                                <option value="started" ${jobData?.status === 'started' ? 'selected' : ''}>⚙️ В работе</option>
+                                <option value="completed" ${jobData?.status === 'completed' ? 'selected' : ''}>✅ Завершена</option>
+                            </select>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <input type="checkbox" name="is_locked" ${jobData?.is_locked ? 'checked' : ''}
+                                   class="rounded text-red-500 focus:ring-red-500 mr-2">
+                            <label class="text-sm dark:text-gray-300">🔒 Заблокировать (запретить изменения)</label>
+                        </div>
+                    </form>
+                 </div>   
+                            <!-- Кнопки действий -->
+                <div class="modal-footer bg-gray-50 dark:bg-gray-700 px-6 py-4 border-t border-gray-200 dark:border-gray-600 rounded-b-lg">
+                    <div class="flex justify-end space-x-3">
+                        <button onclick="app.closeModal()"
+                                class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                            Отмена
+                        </button>
+                        <button onclick="app.jobsManager.${jobData ? 'updateJob' : 'addJob'}(${jobId || ''})"
+                                class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors">
+                            ${jobData ? 'Обновить' : 'Добавить'}
+                        </button>
                     </div>
                 </div>
             </div>
-        `;
+        </div>
+    `;
 
             this.app.showModal(modalHtml);
 
@@ -735,7 +746,7 @@ export default class JobsManager {
             this.app.showNotification('❌ Ошибка при сохранении работы', 'error');
         }
     }
-    
+
     showConflictResolutionModal(jobData, jobId, availableDate, availableOffset) {
         const formattedDate = new Date(availableDate).toLocaleDateString('ru-RU');
 
@@ -874,6 +885,16 @@ export default class JobsManager {
         } catch (error) {
             console.error('Ошибка создания снимка истории:', error);
             return {success: false};
+        }
+    }
+
+    async updateJobDetailsById(jobId) {
+        const jobResponse = await fetch(`/api/jobs/${jobId}`);
+        if (jobResponse.ok) {
+            const jobResult = await jobResponse.json();
+            if (jobResult.success) {
+                await this.app.updateJobDetails(jobResult.job);
+            }
         }
     }
 
