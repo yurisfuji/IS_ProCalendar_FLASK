@@ -29,7 +29,7 @@ app.config.update(
     SECRET_KEY=os.environ.get('SECRET_KEY', 'dev-secret-key'),
     DEBUG=os.environ.get('DEBUG', 'False').lower() == 'true',
     HOST=os.environ.get('HOST', '0.0.0.0'),
-    PORT=int(os.environ.get('PORT', 8080))
+    PORT=int(os.environ.get('PORT', 8080)),
 )
 
 class ThemeManager:

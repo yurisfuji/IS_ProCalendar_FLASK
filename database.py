@@ -8,10 +8,9 @@ from pathlib import Path
 
 # Для Supabase
 if os.environ.get("VERCEL_ENV"):
-    DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///production.db")
+    DATABASE_URL = os.environ.get("SUPABASE_DB_URL", "sqlite:///production.db")
 else:
     DATABASE_URL = "sqlite:///production.db"
-
 engine = create_engine(DATABASE_URL, echo=False)
 
 
