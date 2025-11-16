@@ -6,7 +6,12 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 
-DATABASE_URL = "sqlite:///production.db"
+# Для Supabase
+if os.environ.get("VERCEL_ENV"):
+    DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///production.db")
+else:
+    DATABASE_URL = "sqlite:///production.db"
+
 engine = create_engine(DATABASE_URL, echo=False)
 
 
@@ -303,6 +308,8 @@ def update_calendar(date_str, work_hours):
 
 # Функции для работы с бэкапами
 def create_backup():
+    if not DATABASE_URL.startswith('sqlite'):
+        return
     """Создает резервную копию базы данных в zip-архиве"""
     try:
         # Создаем папку для бэкапов если её нет
@@ -330,6 +337,8 @@ def create_backup():
 
 
 def restore_backup(backup_file_path):
+    if not DATABASE_URL.startswith('sqlite'):
+        return
     """Восстанавливает базу данных из zip-архива"""
     try:
         # Создаем временную папку для распаковки
@@ -381,6 +390,8 @@ def restore_backup(backup_file_path):
 
 
 def get_backup_files():
+    if not DATABASE_URL.startswith('sqlite'):
+        return
     """Возвращает список доступных бэкапов включая загруженные"""
     backup_dir = Path("backups")
     if not backup_dir.exists():
@@ -408,6 +419,8 @@ def get_backup_files():
 
 
 def init_backup_dirs():
+    if not DATABASE_URL.startswith('sqlite'):
+        return
     """Создает необходимые папки для бэкапов при запуске приложения"""
     directories = ["backups", "temp_upload", "temp_restore"]
 
