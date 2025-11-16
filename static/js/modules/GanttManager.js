@@ -36,7 +36,7 @@ export default class GanttManager {
         this.app = app;
         this.selectedJob = null;
         this.ganttSettings = {
-            startDate: localStorage.getItem('ganttStartDate') || this.getTodayDate(),
+            startDate: localStorage.getItem('ganttStartDate') || this.app.getTodayDate(),
             viewMode: localStorage.getItem('ganttViewMode') || 'week',
             equipmentFilter: localStorage.getItem('ganttEquipmentFilter') || 'visible',
             pixelsPerHour: parseInt(localStorage.getItem('ganttPixelsPerHour')) || 20,
