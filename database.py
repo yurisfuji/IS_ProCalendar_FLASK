@@ -7,7 +7,7 @@ from datetime import datetime
 from pathlib import Path
 
 # Для Supabase
-if os.environ.get("VERCEL_ENV"):
+if os.environ.get("SUPABASE_DB_URL"):
     DATABASE_URL = os.environ.get("SUPABASE_DB_URL", "sqlite:///production.db")
 else:
     DATABASE_URL = "sqlite:///production.db"
