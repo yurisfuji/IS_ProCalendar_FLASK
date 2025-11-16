@@ -1,0 +1,404 @@
+/* Tailwind CDN уже подключен, добавляем кастомные стили */
+
+/* ===== БАЗОВЫЕ СТИЛИ И АНИМАЦИИ ===== */
+.fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== КОМПОНЕНТЫ ===== */
+
+/* Карточки */
+.card {
+    @apply bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 border border-gray-200 dark:border-gray-700;
+}
+
+.equipment-item, .order-item, .type-item {
+    @apply card bg-gray-50 dark:bg-gray-750 hover:bg-gray-250 dark:hover:bg-gray-600 transition-colors group;
+    transition: all 0.2s ease;
+    min-height: 48px;
+}
+
+.equipment-item:hover, .order-item:hover, .type-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.dark .equipment-item:hover, .dark .order-item:hover, .dark .type-item:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Кнопки */
+.btn {
+    @apply px-4 py-2 rounded transition-colors font-medium;
+}
+
+.btn-primary {
+    @apply bg-blue-500 hover:bg-blue-600 text-white;
+}
+
+.btn-outline {
+    @apply border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700;
+}
+
+.btn-danger {
+    @apply bg-red-500 hover:bg-red-600 text-white;
+}
+
+.nav-btn {
+    @apply px-4 py-2 rounded transition-colors hover:bg-blue-700;
+    transition: all 0.3s ease;
+}
+
+.nav-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.theme-btn {
+    transition: all 0.3s ease;
+}
+
+.theme-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: scale(1.05);
+}
+
+.sidebar-btn {
+    @apply w-full p-2 text-left rounded transition-colors;
+}
+
+.sidebar-btn.primary {
+    @apply bg-blue-500 text-white hover:bg-blue-600;
+}
+
+.sidebar-btn:not(.primary) {
+    @apply bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600;
+}
+
+.filter-type-btn {
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    font-size: 0.75rem;
+    line-height: 1;
+}
+
+.filter-type-btn:hover:not(.bg-blue-500) {
+    background-color: #e5e7eb;
+    transform: translateY(-1px);
+}
+
+.dark .filter-type-btn:hover:not(.bg-blue-500) {
+    background-color: #4b5563;
+}
+
+.undo-redo-btn {
+    transition: all 0.2s ease;
+    min-width: 40px;
+}
+
+.undo-redo-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.undo-redo-btn:not(:disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.undo-redo-btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+/* Формы */
+.form-input {
+    @apply w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white;
+}
+
+/* ===== LAYOUT КОМПОНЕНТЫ ===== */
+
+/* Sidebar */
+#sidebar {
+    position: fixed;
+    left: 0;
+    top: 96px;
+    height: calc(100vh - 96px);
+    width: 16rem;
+    z-index: 40;
+    overflow: hidden;
+    transition: all 0.3s ease-in-out;
+}
+
+.sidebar-content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-scrollable {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 1rem;
+}
+
+/* Main Content */
+#main-content {
+    margin-left: 16rem;
+    transition: margin-left 0.3s ease-in-out;
+    min-height: calc(100vh - 96px);
+}
+
+.sidebar-hidden #main-content {
+    margin-left: 0.5rem;
+}
+
+/* Sidebar Toggle */
+#sidebar-toggle {
+    transition: all 0.3s ease-in-out;
+    z-index: 60;
+}
+
+.sidebar-toggle-transition {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== ГАНТ ДИАГРАММА ===== */
+.gantt-page-container {
+    display: flex;
+    flex-direction: column;
+    max-height: 100vh;
+    overflow: hidden;
+}
+
+.gantt-wrapper {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.gantt-container {
+    cursor: grab;
+    overflow: auto;
+    position: relative;
+    min-width: 800px;
+    min-height: 500px;
+    transition: width 0.3s ease, height 0.3s ease;
+}
+
+.gantt-container:active {
+    cursor: grabbing;
+}
+
+.gantt-container.initial-size {
+    width: 100%;
+    height: 600px;
+}
+
+/* ===== СКРОЛЛБАРЫ ===== */
+
+/* Sidebar Scrollbar */
+.sidebar-scrollable::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar-scrollable::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar-scrollable::-webkit-scrollbar-thumb {
+    background: #9CA3AF;
+    border-radius: 2px;
+}
+
+.sidebar-scrollable::-webkit-scrollbar-thumb:hover {
+    background: #6B7280;
+}
+
+.dark .sidebar-scrollable::-webkit-scrollbar-thumb {
+    background: #4B5563;
+}
+
+.dark .sidebar-scrollable::-webkit-scrollbar-thumb:hover {
+    background: #6B7280;
+}
+
+/* Gantt Scrollbar */
+.gantt-container::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+.gantt-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 6px;
+}
+
+.gantt-container::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 6px;
+}
+
+.gantt-container::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+.dark .gantt-container::-webkit-scrollbar-track {
+    background: #374151;
+}
+
+.dark .gantt-container::-webkit-scrollbar-thumb {
+    background: #6b7280;
+}
+
+.dark .gantt-container::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
+/* ===== СЛАЙДЕРЫ ===== */
+.slider::-webkit-slider-thumb {
+    appearance: none;
+    height: 12px;
+    width: 12px;
+    border-radius: 50%;
+    background: #3b82f6;
+    cursor: pointer;
+    border: 2px solid #ffffff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.slider::-webkit-slider-thumb:hover {
+    background: #2563eb;
+    transform: scale(1.1);
+}
+
+.slider::-moz-range-thumb {
+    height: 12px;
+    width: 12px;
+    border-radius: 50%;
+    background: #3b82f6;
+    cursor: pointer;
+    border: 2px solid #ffffff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.slider::-moz-range-thumb:hover {
+    background: #2563eb;
+    transform: scale(1.1);
+}
+
+.slider::-webkit-slider-track {
+    height: 4px;
+    border-radius: 2px;
+    background: #e5e7eb;
+}
+
+.slider::-moz-range-track {
+    height: 4px;
+    border-radius: 2px;
+    background: #e5e7eb;
+    border: none;
+}
+
+/* Темная тема для слайдеров */
+.dark .slider::-webkit-slider-thumb {
+    border: 2px solid #1f2937;
+}
+
+.dark .slider::-moz-range-thumb {
+    border: 2px solid #1f2937;
+}
+
+.dark .slider::-webkit-slider-track {
+    background: #4b5563;
+}
+
+.dark .slider::-moz-range-track {
+    background: #4b5563;
+}
+
+/* ===== УТИЛИТЫ ===== */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.sidebar-transition {
+    transition: all 0.3s ease;
+}
+
+.content-transition {
+    transition: all 0.3s ease;
+}
+
+/* Стили для скроллбара в блоке деталей работы */
+#job-details::-webkit-scrollbar {
+    width: 6px;
+}
+
+#job-details::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+#job-details::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+#job-details::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+.dark #job-details::-webkit-scrollbar-track {
+    background: #374151;
+}
+
+.dark #job-details::-webkit-scrollbar-thumb {
+    background: #6b7280;
+}
+
+.dark #job-details::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
+/* Стили для тултипов в модальном окне */
+.tooltip-element {
+    position: fixed;
+    z-index: 1000;
+    pointer-events: none;
+    animation: tooltipFadeIn 0.2s ease-out;
+}
+
+@keyframes tooltipFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Предотвращение выделения текста в календаре */
+#calendar-days-grid * {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+/* Для поля с часами */
+.calendar-hours {
+    pointer-events: none;
+}

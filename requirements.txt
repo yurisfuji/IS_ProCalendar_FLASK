@@ -1,0 +1,5 @@
+Flask
+sqlmodel
+pandas
+Pillow
+openpyxl
