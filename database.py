@@ -17,7 +17,6 @@ else:
 
 engine = create_engine(DATABASE_URL, echo=False)
 
-print(DATABASE_URL)
 
 def create_db_and_tables():
     """Создает все таблицы в правильном порядке"""

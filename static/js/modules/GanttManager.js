@@ -95,12 +95,17 @@ export default class GanttManager {
                             <button class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 p-1 rounded transition-colors text-xs w-6 h-6 flex items-center justify-center"
                                     title="На неделю назад"
                                     onclick="app.ganttManager.ganttNavigate('week-back')">
-                                ⏪
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M11 17L6 12L11 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M18 17L13 12L18 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
                             </button>
                             <button class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 p-1 rounded transition-colors text-xs w-6 h-6 flex items-center justify-center"
                                     title="На день назад"
                                     onclick="app.ganttManager.ganttNavigate('day-back')">
-                                ◀️
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                                </svg>
                             </button>
                             <input type="date" 
                                    class="w-40 p-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
@@ -110,12 +115,17 @@ export default class GanttManager {
                             <button class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 p-1 rounded transition-colors text-xs w-6 h-6 flex items-center justify-center"
                                     title="На день вперед"
                                     onclick="app.ganttManager.ganttNavigate('day-forward')">
-                                ▶️
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
                             </button>
                             <button class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 p-1 rounded transition-colors text-xs w-6 h-6 flex items-center justify-center"
                                     title="На неделю вперед"
                                     onclick="app.ganttManager.ganttNavigate('week-forward')">
-                                ⏩
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M13 17L18 12L13 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M6 17L11 12L6 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
                             </button>
                         </div>
                     </div>
@@ -199,7 +209,7 @@ export default class GanttManager {
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md px-6 py-1 border border-gray-200 dark:border-gray-700">
                 <div class="flex flex-col items-center justify-center py-12">
                     <div class="text-4xl mb-4">📊</div>
-                    <h3 class="text-xl font-semibold dark:text-white mb-2">Диаграмма Ганта</h3>
+                    <h3 class="text-xl font-semibold dark:text-white mb-2">Диаграмма загрузки оборудования</h3>
                     <p class="dark:text-gray-300 text-center mb-4">Настройте параметры отображения - диаграмма обновится автоматически</p>
                     
                     <!-- Статус загрузки данных -->
@@ -559,27 +569,49 @@ export default class GanttManager {
                                     <button onclick="app.ganttManager.zoomGantt(0.8)" 
                                             class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors"
                                             title="Уменьшить масштаб">
-                                        🔍−
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+                                            <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                            <path d="M8 11H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                        </svg>
                                     </button>
                                     <button onclick="app.ganttManager.zoomGantt(1.2)" 
                                             class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors"
                                             title="Увеличить масштаб">
-                                        🔍+
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+                                            <path d="M21 21L16.65 16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                            <path d="M11 8V14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                            <path d="M8 11H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                        </svg>
                                     </button>
                                     <button onclick="app.ganttManager.fitGanttScale()" 
-                                            class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm transition-colors"
+                                            class="flex space-x-2 bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm transition-colors"
                                             title="Подогнать масштаб по ширине контейнера">
-                                        📐 Подогнать масштаб
+                                            <svg fill="#FFFFFF" width="24px" height="24px" viewBox="0 0 32 32">
+                                            <path d="M23.977 28.965v-1.932h3.988v-3.988h2.057v5.92h-6.045zM27.965 5.967h-3.988v-1.932h6.045v5.92h-2.057v-3.988zM3.035 9.955h-2.056v-5.92h6.045v1.932h-3.989v3.988zM4.967 8.023h21.066v16.953h-21.066v-16.953zM7.023 23.045h16.953v-13.090h-16.953v13.090zM9.018 12.012h13.027v8.977h-13.027v-8.977zM3.035 27.033h3.988v1.932h-6.044v-5.92h2.057v3.988z"></path>
+                                            </svg>
+                                            <!--span>Подогнать масштаб</span-->
                                     </button>
                                     <button onclick="app.ganttManager.exportGanttImage()" 
-                                            class="bg-purple-500 hover:bg-purple-600 text-white px-3 py-1 rounded text-sm transition-colors"
+                                            class="flex space-x-2 bg-purple-500 hover:bg-purple-600 text-white px-3 py-1 rounded text-sm transition-colors"
                                             title="Экспорт изображения">
-                                        💾 Экспорт PNG
+                                        <!--span>Экспорт </span-->                                                                   
+                                        <svg fill="transparent" height="24px" width="24px" viewBox="0 0 24 24" >
+                                            <path d="M4,5 C4,3.89543 4.89543,3 6,3 L15.1716,3 C15.702,3 16.2107,3.21071 16.5858,3.58579 L19.4142,6.41421 C19.7893,6.78929 20,7.29799 20,7.82843 L20,19 C20,20.1046 19.1046,21 18,21 L6,21 C4.89543,21 4,20.1046 4,19 L4,5 Z" id="Path" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+                                            <path d="M15,4 L15,6 C15,7.10457 15.8954,8 17,8 L19,8" id="Path" stroke-width="2" stroke="#FFFFFF" stroke-linecap="round"/>
+                                            <path d="M9.56527,14.06 C9.56527,14.308 9.51927,14.518 9.42727,14.69 C9.33527,14.858 9.21127,14.994 9.05527,15.098 C8.89927,15.202 8.71927,15.278 8.51527,15.326 C8.31127,15.374 8.09927,15.398 7.87927,15.398 L7.36927,15.398 L7.36927,17 L6.34327,17 L6.34327,12.752 L7.90327,12.752 C8.13527,12.752 8.35127,12.776 8.55127,12.824 C8.75527,12.868 8.93127,12.942 9.07927,13.046 C9.23127,13.146 9.34927,13.28 9.43327,13.448 C9.52127,13.612 9.56527,13.816 9.56527,14.06 Z M8.53927,14.066 C8.53927,13.966 8.51927,13.884 8.47927,13.82 C8.43927,13.756 8.38527,13.706 8.31727,13.67 C8.24927,13.634 8.17127,13.61 8.08327,13.598 C7.99927,13.586 7.91127,13.58 7.81927,13.58 L7.36927,13.58 L7.36927,14.582 L7.80127,14.582 C7.89727,14.582 7.98927,14.574 8.07727,14.558 C8.16527,14.542 8.24327,14.514 8.31127,14.474 C8.38327,14.434 8.43927,14.382 8.47927,14.318 C8.51927,14.25 8.53927,14.166 8.53927,14.066 Z M12.8812,17 L11.1712,14.222 L11.1532,14.222 L11.1772,17 L10.1812,17 L10.1812,12.752 L11.3512,12.752 L13.0552,15.524 L13.0732,15.524 L13.0492,12.752 L14.0452,12.752 L14.0452,17 L12.8812,17 Z M18.6954,16.742 C18.4874,16.85 18.2434,16.938 17.9634,17.006 C17.6874,17.074 17.3854,17.108 17.0574,17.108 C16.7174,17.108 16.4034,17.054 16.1154,16.946 C15.8314,16.838 15.5854,16.686 15.3774,16.49 C15.1734,16.294 15.0134,16.06 14.8974,15.788 C14.7814,15.512 14.7234,15.206 14.7234,14.87 C14.7234,14.53 14.7814,14.222 14.8974,13.946 C15.0174,13.67 15.1814,13.436 15.3894,13.244 C15.5974,13.048 15.8414,12.898 16.1214,12.794 C16.4014,12.69 16.7034,12.638 17.0274,12.638 C17.3634,12.638 17.6754,12.69 17.9634,12.794 C18.2514,12.894 18.4854,13.03 18.6654,13.202 L18.0174,13.94 C17.9174,13.824 17.7854,13.73 17.6214,13.658 C17.4574,13.582 17.2714,13.544 17.0634,13.544 C16.8834,13.544 16.7174,13.578 16.5654,13.646 C16.4134,13.71 16.2814,13.802 16.1694,13.922 C16.0574,14.038 15.9694,14.178 15.9054,14.342 C15.8454,14.502 15.8154,14.678 15.8154,14.87 C15.8154,15.066 15.8434,15.246 15.8994,15.41 C15.9554,15.574 16.0374,15.716 16.1454,15.836 C16.2574,15.952 16.3934,16.044 16.5534,16.112 C16.7174,16.176 16.9034,16.208 17.1114,16.208 C17.2314,16.208 17.3454,16.2 17.4534,16.184 C17.5614,16.164 17.6614,16.134 17.7534,16.094 L17.7534,15.32 L16.9434,15.32 L16.9434,14.492 L18.6954,14.492 L18.6954,16.742 Z" id="Shape" fill="#FFFFFF"/>
+                                        </svg>
+                                                               
                                     </button>
                                     <button onclick="app.ganttManager.exportGanttToExcel()" 
-                                            class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition-colors"
+                                            class="flex space-x-2 bg-purple-500 hover:bg-purple-600 text-white px-3 py-1 rounded text-sm transition-colors"
                                             title="Экспорт в Excel">
-                                        📊 Экспорт Excel
+                                        <!--span>Экспорт </span-->  
+                                        <svg fill="#FFFFFF" width="24px" height="24px" viewBox="0 0 24 24" role="img"">
+                                            <path d="M23 1.5q.41 0 .7.3.3.29.3.7v19q0 .41-.3.7-.29.3-.7.3H7q-.41 0-.7-.3-.3-.29-.3-.7V18H1q-.41 0-.7-.3-.3-.29-.3-.7V7q0-.41.3-.7Q.58 6 1 6h5V2.5q0-.41.3-.7.29-.3.7-.3zM6 13.28l1.42 2.66h2.14l-2.38-3.87 2.34-3.8H7.46l-1.3 2.4-.05.08-.04.09-.64-1.28-.66-1.29H2.59l2.27 3.82-2.48 3.85h2.16zM14.25 21v-3H7.5v3zm0-4.5v-3.75H12v3.75zm0-5.25V7.5H12v3.75zm0-5.25V3H7.5v3zm8.25 15v-3h-6.75v3zm0-4.5v-3.75h-6.75v3.75zm0-5.25V7.5h-6.75v3.75zm0-5.25V3h-6.75v3Z"/>
+                                        </svg>
+                            
                                     </button>
                                 </div>
                                 <div class="text-sm text-gray-600 dark:text-gray-400">
@@ -1291,7 +1323,6 @@ export default class GanttManager {
     }
 
     // В класс GanttManager добавьте метод:
-
 
 
 }

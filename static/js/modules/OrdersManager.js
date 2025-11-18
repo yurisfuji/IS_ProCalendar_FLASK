@@ -1,223 +1,87 @@
+import { OrdersPage } from '../components/orders/OrdersPage.js';
+import { OrdersList } from '../components/orders/OrdersList.js';
+import { OrderModal } from '../components/orders/OrderModal.js';
+
+/**
+ * Менеджер для работы с заказами
+ * Отвечает за управление заказами, включая CRUD операции, фильтрацию и отображение
+ */
 export default class OrdersManager {
+    /**
+     * Конструктор менеджера заказов
+     * @param {Object} app - Главный экземпляр приложения
+     */
     constructor(app) {
         this.app = app;
         this.ordersData = null;
         this.ordersFilter = localStorage.getItem('lastOrdersFilter') || '';
+
+        // Инициализируем компоненты
+        this.ordersPage = new OrdersPage(this);
+        this.ordersList = new OrdersList(this);
+        this.orderModal = new OrderModal(this);
     }
 
+    /**
+     * Рендерит страницу управления заказами
+     * @returns {Promise<string>} HTML-разметка страницы заказов
+     */
     async renderOrdersPage() {
-        try {
-            // Загружаем данные заказов
-            await this.loadOrdersData();
-
-            return `
-                <div class="fade-in">
-                    <div class="flex items-center justify-between mb-6">
-                        <h2 class="text-3xl font-bold dark:text-white">📋 Управление заказами</h2>
-                        <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
-                                onclick="app.ordersManager.openOrderModal()">
-                            📋 Новый заказ
-                        </button>
-                    </div>
-                    
-                    <!-- Фильтр заказов -->
-                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 border border-gray-200 dark:border-gray-700 mb-4">
-                        <div class="flex items-center justify-between mb-2">
-                            <h4 class="text-sm font-semibold dark:text-white">Фильтр заказов</h4>
-                            <span class="text-xs text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300">
-                                Показано: <strong>${this.getFilteredOrders().length}</strong> из <strong>${this.ordersData.orders.length}</strong>
-                            </span>
-                        </div>
-                        <div class="flex space-x-2">
-                            <input type="text" 
-                                   id="orders-filter-input"
-                                   placeholder="Введите название заказа..."
-                                   value="${this.ordersFilter}"
-                                   class="flex-1 p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-                                   oninput="app.ordersManager.filterOrders(this.value)">
-                            ${this.ordersFilter ? `
-                                <button onclick="app.ordersManager.clearOrdersFilter()"
-                                        class="bg-green-500 hover:bg-green-600 text-white px-3 py-0 rounded transition-colors">
-                                    ❎
-                                </button>
-                            ` : ''}
-                        </div>
-                    </div>
-                    
-                    <!-- Список заказов -->
-                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 border border-gray-200 dark:border-gray-700">
-                        ${this.getFilteredOrders().length === 0 ?
-                this.ordersData.orders.length === 0 ?
-                    '<div class="text-center py-8">' +
-                    '<p class="text-gray-500 dark:text-gray-400 text-sm mb-3">Заказы не найдены</p>' +
-                    '</div>' :
-                    '<div class="text-center py-8">' +
-                    '<p class="text-gray-500 dark:text-gray-400 text-sm mb-3">Заказы по фильтру не найдены</p>' +
-                    '<button onclick="app.ordersManager.clearOrdersFilter()" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors">' +
-                    'Очистить фильтр' +
-                    '</button>' +
-                    '</div>' :
-                `<div class="space-y-2">${this.getFilteredOrders().map((order, index) => this.renderOrderItem(order, index)).join('')}</div>`
-            }
-                    </div>
-                </div>
-            `;
-        } catch (error) {
-            console.error('Ошибка загрузки страницы заказов:', error);
-            return `
-                <div class="text-center py-12">
-                    <div class="text-red-500 text-xl mb-4">❌ Ошибка загрузки заказов</div>
-                    <button onclick="app.navigateTo('orders')" 
-                            class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
-                        Попробовать снова
-                    </button>
-                </div>
-            `;
-        }
+        return await this.ordersPage.render();
     }
 
-    renderOrderItem(order, index) {
-        // Определяем цвет для этапа
-        let stageColor = '';
-        let stageIcon = '';
-
-        switch (order.stage) {
-            case 'запланирован':
-                stageColor = 'text-blue-500';
-                stageIcon = '📅';
-                break;
-            case 'в производстве':
-                stageColor = 'text-orange-500';
-                stageIcon = '⚙️';
-                break;
-            case 'завершён':
-                stageColor = 'text-green-500';
-                stageIcon = '✅';
-                break;
-            default:
-                stageColor = 'text-gray-500';
-                stageIcon = '❓';
-        }
-
-        return `
-            <div class="order-item group bg-white dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg p-3 transition-colors border border-gray-200 dark:border-gray-700">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-3 flex-1 min-w-0">
-                        <!-- Цветной индикатор заказа -->
-                        <div class="w-9 h-12 rounded flex-shrink-0 border border-white dark:border-gray-600 shadow-sm" 
-                             style="background-color: ${order.color}">
-                        </div>
-                        
-                        <!-- Информация о заказе -->
-                        <div class="flex-1 min-w-0">
-                            <h4 class="text-sm font-semibold dark:text-white truncate" title="${order.name}">
-                                ${order.name}
-                            </h4>
-                            <div class="flex items-center space-x-3 text-xs text-gray-500 dark:text-gray-400">
-                                <span>Кол-во: ${order.quantity} шт.</span>
-                                <span>•</span>
-                                <span>Работ: ${order.jobs_count || 0}</span>
-                                <span>•</span>
-                                <span class="flex items-center space-x-1">
-                                    <span>Этап:</span>
-                                    <span class="${stageColor} font-medium flex items-center space-x-1">
-                                        <span>${stageIcon}</span>
-                                        <span>${order.stage}</span>
-                                    </span>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Кнопки управления -->
-                    <div class="flex items-center space-x-1 ml-3 opacity-0 group-hover:opacity-100">
-                        ${index > 0 ? `
-                            <button class="${this.app.move_button_class}"
-                                    onclick="app.ordersManager.moveOrder(${order.id}, 'up')"
-                                    title="Повысить приоритет">
-                                ${this.app.move_up_button_svg}
-                            </button>
-                        ` : ''}
-                        
-                        ${index < this.ordersData.orders.length - 1 ? `
-                            <button class="${this.app.move_button_class}"
-                                    onclick="app.ordersManager.moveOrder(${order.id}, 'down')"
-                                    title="Понизить приоритет">
-                                ${this.app.move_down_button_svg}
-                            </button>
-                        ` : ''}
-                        
-                        <button class="${this.app.edit_button_class}"
-                                onclick="app.ordersManager.openOrderModal(${order.id})"
-                                title="Редактировать">
-                                ${this.app.edit_button_svg}
-                        </button>
-                        
-                        ${order.jobs_count === 0 ? `
-                            <button class="${this.app.delete_button_class}"
-                                    onclick="app.ordersManager.deleteOrder(${order.id})"
-                                    title="Удалить">
-                                 ${this.app.delete_button_svg}
-                            </button>
-                        ` : `
-                            <button class="${this.app.cant_delete_button_class}"
-                                    title="Нельзя удалить: связано ${order.jobs_count} работ">
-                                 ${this.app.delete_button_svg}
-                            </button>
-                        `}
-                    </div>
-                </div>
-            </div>
-        `;
+    /**
+     * Рендерит список заказов
+     * @param {Array} filteredOrders - Отфильтрованный массив заказов
+     * @returns {string} HTML-разметка списка заказов
+     */
+    renderOrdersList(filteredOrders) {
+        return this.ordersList.render(filteredOrders);
     }
 
-    // Методы для фильтрации заказов
+    // === МЕТОДЫ ФИЛЬТРАЦИИ И ОБНОВЛЕНИЯ ===
+
+    /**
+     * Фильтрует заказы по введенному тексту
+     * @param {string} filterText - Текст для фильтрации
+     */
     filterOrders(filterText) {
         this.ordersFilter = filterText.toLowerCase().trim();
         localStorage.setItem('lastOrdersFilter', this.ordersFilter);
 
-        // Debounce для оптимизации
+        // Debounce для оптимизации - обновляем список через 300мс после последнего ввода
         clearTimeout(this.filterTimeout);
         this.filterTimeout = setTimeout(() => {
             this.updateOrdersList();
         }, 300);
     }
 
-    // Новый метод для обновления только списка заказов
+    /**
+     * Обновляет отображение списка заказов
+     * Вызывается при изменении фильтра или данных
+     */
     updateOrdersList() {
-        const ordersContainer = document.getElementById('orders-list-container') ||
-            document.querySelector('.bg-white.dark\\:bg-gray-800:last-child');
+        this.ordersList.update();
+        this.updateOrdersCounter();
+        this.updateOrdersClearButton();
+    }
 
-        if (ordersContainer) {
+    /**
+     * Обновляет счетчик отображенных заказов
+     * Показывает количество отфильтрованных заказов из общего числа
+     */
+    updateOrdersCounter() {
+        const counter = document.getElementById('orders-counter');
+        if (counter) {
             const filteredOrders = this.getFilteredOrders();
-
-            if (filteredOrders.length === 0) {
-                ordersContainer.innerHTML = this.ordersData.orders.length === 0 ?
-                    '<div class="text-center py-8">' +
-                    '<p class="text-gray-500 dark:text-gray-400 text-sm mb-3">Заказы не найдены</p>' +
-                    '</div>' :
-                    '<div class="text-center py-8">' +
-                    '<p class="text-gray-500 dark:text-gray-400 text-sm mb-3">Заказы по фильтру не найдены</p>' +
-                    '<button onclick="app.ordersManager.clearOrdersFilter()" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors">' +
-                    'Очистить фильтр' +
-                    '</button>' +
-                    '</div>';
-            } else {
-                ordersContainer.innerHTML = `<div class="space-y-2">${filteredOrders.map((order, index) => this.renderOrderItem(order, index)).join('')}</div>`;
-            }
-
-            // Обновляем счетчик по ID
-            const counter = document.getElementById('orders-counter');
-            if (counter) {
-                counter.innerHTML = `Показано: <strong>${filteredOrders.length}</strong> из <strong>${this.ordersData.orders.length}</strong>`;
-            }
-
-            // Обновляем кнопку очистки фильтра
-            this.updateOrdersClearButton();
+            counter.innerHTML = `Показано: <strong>${filteredOrders.length}</strong> из <strong>${this.ordersData.orders.length}</strong>`;
         }
     }
 
-    // Новый метод для обновления кнопки очистки фильтра заказов
+    /**
+     * Обновляет кнопку очистки фильтра
+     * Показывает/скрывает кнопку в зависимости от наличия фильтра
+     */
     updateOrdersClearButton() {
         const filterContainer = document.querySelector('.bg-white.dark\\:bg-gray-800 .flex.space-x-2');
         if (filterContainer) {
@@ -227,7 +91,7 @@ export default class OrdersManager {
                     ❎
                 </button>` : '';
 
-            // Сохраняем поле ввода
+            // Сохраняем ссылку на текущее поле ввода
             const input = filterContainer.querySelector('input');
             if (input) {
                 filterContainer.innerHTML = `
@@ -240,17 +104,20 @@ export default class OrdersManager {
                 ${clearButtonHtml}
             `;
 
-                // Восстанавливаем фокус
+                // Восстанавливаем фокус и позицию курсора
                 const newInput = filterContainer.querySelector('input');
                 if (newInput) {
                     newInput.focus();
-                    // Устанавливаем курсор в конец текста
                     newInput.setSelectionRange(newInput.value.length, newInput.value.length);
                 }
             }
         }
     }
 
+    /**
+     * Возвращает отфильтрованный список заказов
+     * @returns {Array} Массив заказов, отфильтрованных по текущему фильтру
+     */
     getFilteredOrders() {
         if (!this.ordersData || !this.ordersData.orders) return [];
 
@@ -263,93 +130,44 @@ export default class OrdersManager {
         );
     }
 
+    /**
+     * Загружает данные заказов с сервера
+     * @throws {Error} Если не удалось загрузить данные
+     */
     async loadOrdersData() {
         const response = await fetch('/api/orders');
         if (!response.ok) throw new Error('Failed to load orders data');
         this.ordersData = await response.json();
     }
 
+    /**
+     * Очищает текущий фильтр заказов
+     * Сбрасывает фильтр и обновляет отображение
+     */
     clearOrdersFilter() {
         this.ordersFilter = '';
         localStorage.removeItem('lastOrdersFilter');
-        // Сбрасываем значение в поле ввода
         const filterInput = document.getElementById('orders-filter-input');
-        if (filterInput) {
-            filterInput.value = '';
-        }
+        if (filterInput) filterInput.value = '';
         this.updateOrdersList();
     }
 
-    // Модальные окна для заказов
+    // === МЕТОДЫ РАБОТЫ С МОДАЛЬНЫМИ ОКНАМИ ===
+
+    /**
+     * Открывает модальное окно для создания/редактирования заказа
+     * @param {number|null} orderId - ID заказа для редактирования, null для создания нового
+     */
     openOrderModal(orderId = null) {
-        const order = orderId ? this.ordersData.orders.find(o => o.id === orderId) : null;
-
-        const modalHtml = `
-        <div class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div class="modal-dialog bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-hidden flex flex-col">
-                <!-- Заголовок для перетаскивания -->
-                <div class="modal-header cursor-move bg-gray-50 dark:bg-gray-700 px-6 py-4 border-b border-gray-200 dark:border-gray-600 rounded-t-lg flex justify-between items-center select-none"
-                     id="modal-drag-handle">
-                    <h3 class="text-xl font-semibold text-gray-800 dark:text-white">
-                        ${order ? '✏️ Редактировать заказ' : '📋 Новый заказ'}
-                    </h3>
-                    <button onclick="app.closeModal()" 
-                            class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-2xl font-bold w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-                        ×
-                    </button>
-                </div>
-                
-                <!-- Содержимое формы -->
-                <div class="modal-content flex-1 overflow-auto p-6">
-                    <form id="order-form" class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium dark:text-gray-300 mb-1">
-                                Наименование заказа*
-                            </label>
-                            <input type="text" name="name" value="${order?.name || ''}"
-                                   class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                                   placeholder="Введите название заказа..." required>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium dark:text-gray-300 mb-1">
-                                Цвет заказа*
-                            </label>
-                            <input type="color" name="color" value="${order?.color || '#0800ff'}"
-                                   class="w-full h-10 rounded border border-gray-300 dark:border-gray-600 cursor-pointer">
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium dark:text-gray-300 mb-1">
-                                Количество
-                            </label>
-                            <input type="number" name="quantity" value="${order?.quantity || 1}"
-                                   class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                                   min="1" required>
-                        </div>
-                    </form>
-                </div>
-                
-                <!-- Кнопки действий -->
-                <div class="modal-footer bg-gray-50 dark:bg-gray-700 px-6 py-4 border-t border-gray-200 dark:border-gray-600 rounded-b-lg">
-                    <div class="flex justify-end space-x-3">
-                        <button onclick="app.closeModal()"
-                                class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
-                            Отмена
-                        </button>
-                        <button onclick="app.ordersManager.${order ? 'updateOrder' : 'addOrder'}(${orderId || ''})"
-                                class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors">
-                            ${order ? 'Обновить' : 'Добавить'}
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-
-        this.app.showModal(modalHtml);
+        this.orderModal.open(orderId);
     }
 
+    // === CRUD ОПЕРАЦИИ С ЗАКАЗАМИ ===
+
+    /**
+     * Добавляет новый заказ
+     * Отправляет данные на сервер и обновляет интерфейс
+     */
     async addOrder() {
         try {
             const form = document.getElementById('order-form');
@@ -384,6 +202,10 @@ export default class OrdersManager {
         }
     }
 
+    /**
+     * Обновляет существующий заказ
+     * @param {number} orderId - ID заказа для обновления
+     */
     async updateOrder(orderId) {
         try {
             const form = document.getElementById('order-form');
@@ -417,6 +239,10 @@ export default class OrdersManager {
         }
     }
 
+    /**
+     * Удаляет заказ после подтверждения
+     * @param {number} orderId - ID заказа для удаления
+     */
     async deleteOrder(orderId) {
         if (!confirm('Вы уверены, что хотите удалить этот заказ?')) return;
 
@@ -441,6 +267,11 @@ export default class OrdersManager {
         }
     }
 
+    /**
+     * Изменяет приоритет заказа (перемещает вверх/вниз в списке)
+     * @param {number} orderId - ID заказа для перемещения
+     * @param {string} direction - Направление перемещения: 'up' или 'down'
+     */
     async moveOrder(orderId, direction) {
         try {
             const response = await fetch(`/api/orders/${orderId}/move/${direction}`, {
