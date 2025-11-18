@@ -44,6 +44,45 @@ class App {
             '    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>\n' +
             '</svg>'
 
+        // Система подсказок
+        this.tips = [
+            {
+                title: "Горячие клавиши (Ctrl+Z)",
+                content: "Используйте Ctrl+Z для отмены последнего действия по изменению параметров работ."
+            },
+            {
+                title: "Горячие клавиши (Ctrl+Y)",
+                content: "Используйте Ctrl+Y для повтора действия по изменению параметров работ."
+            },
+            {
+                title: "Горячие клавиши (Ctrl+←)",
+                content: "Используйте Ctrl+стрелка влево на диаграмме загрузки оборудования для прижатия выбранной работы вплотную к предыдущей."
+            },
+            {
+                title: "Горячие клавиши (Ctrl+→)",
+                content: "Используйте Ctrl+стрелка вправо на диаграмме загрузки оборудования для прижатия выбранной работы вплотную к следующей за ней."
+            },
+            {
+                title: "Горячие клавиши (Delete)",
+                content: "На диаграмме загрузки оборудования используйте Delete для удаления выбранной работы."
+            },
+            {
+                title: "Горячие клавиши",
+                content: "На диаграмме загрузки оборудования используйте двойной клик мышкой по работе, чтобы вызвать окно редактирования параметров работы."
+            },
+            {
+                title: "Горячие клавиши",
+                content: "На диаграмме загрузки оборудования используйте клавишу Ctrl и двойной клик мышкой по выбранной работы, чтобы вызвать окно редактирования параметров заказа из этой работы."
+            },
+            {
+                title: "Быстрое создание",
+                content: "Используйте кнопки в боковой панели для быстрого создания оборудования, заказов и работ без переключения между страницами."
+            },
+            {
+                title: "Быстрое изменение",
+                content: "Используйте двойной клик мышкой на ячейке даты в календаре для быстрого изменения количества рабочих дней."
+            },
+        ]
         this.initManagers();
         this.init();
     }
@@ -143,7 +182,7 @@ class App {
     init() {
         this.applyTheme(this.isDark);
         this.updateActiveNavButton(this.currentPage);
-
+        this.initTipsSystem();
         // Загружаем последнюю посещенную страницу при инициализации
         this.loadPage(this.currentPage);
         // Инициализируем обработку горячих клавиш
@@ -156,8 +195,8 @@ class App {
         document.addEventListener('keydown', (e) => {
             // Ctrl+Z для Undo
             if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
-            e.preventDefault();
-            this.historyManager.undo();
+                e.preventDefault();
+                this.historyManager.undo();
             }
 
             // Ctrl+Y или Ctrl+Shift+Z для Redo
@@ -179,6 +218,14 @@ class App {
                 e.preventDefault();
                 if (this.ganttManager && this.ganttManager.moveJobRight) {
                     this.ganttManager.moveJobRight();
+                }
+            }
+
+            // Delete для удаления работы
+            if (e.key === 'Delete') {
+                e.preventDefault();
+                if (this.ganttManager && this.ganttManager.selectedJob) {
+                    this.jobsManager.deleteJob(this.ganttManager.selectedJob.id);
                 }
             }
         });
@@ -283,7 +330,7 @@ class App {
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
-                        <h3 class="text-xl font-semibold text-black dark:text-white mb-3">📊 Диаграмма Ганта</h3>
+                        <h3 class="text-xl font-semibold text-black dark:text-white mb-3">📊 Диаграмма загрузки оборудования</h3>
                         <p class="text-gray-700 dark:text-gray-300 mb-4">Визуализация производственного плана с временными интервалами</p>
                         <button onclick="app.navigateTo('gantt')" 
                                 class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg transition-colors">
@@ -326,7 +373,7 @@ class App {
         this.sidebarOpen = !this.sidebarOpen;
         const sidebar = document.getElementById('sidebar');
         const toggleBtn = document.getElementById('sidebar-toggle');
-        const mainContent    = document.getElementById('main-content');
+        const mainContent = document.getElementById('main-content');
         const body = document.body;
 
         if (this.sidebarOpen) {
@@ -876,10 +923,72 @@ class App {
         dragHandle.style.webkitUserSelect = 'none';
     }
 
+    initTipsSystem() {
+        const tipsToggle = document.getElementById('tips-toggle');
+        const tipsModal = document.getElementById('tips-modal');
+        const tipsClose = document.getElementById('tips-close');
+        const tipsOk = document.getElementById('tips-ok');
+        const nextTip = document.getElementById('next-tip');
+        const tipsTitle = document.getElementById('tips-title');
+        const tipsContent = document.getElementById('tips-content');
+
+        if (!tipsToggle || !tipsModal) return;
+
+        // Показ случайной подсказки
+        tipsToggle.addEventListener('click', () => {
+            this.showRandomTip();
+        });
+
+        // Закрытие модального окна
+        const closeTipsModal = () => {
+            tipsModal.classList.add('hidden');
+        };
+
+        tipsClose.addEventListener('click', closeTipsModal);
+        tipsOk.addEventListener('click', closeTipsModal);
+
+        // Следующая подсказка
+        nextTip.addEventListener('click', () => {
+            this.showRandomTip();
+        });
+
+        // Закрытие по клику вне модального окна
+        tipsModal.addEventListener('click', (e) => {
+            if (e.target === tipsModal) {
+                closeTipsModal();
+            }
+        });
+
+        // Закрытие по Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !tipsModal.classList.contains('hidden')) {
+                closeTipsModal();
+            }
+        });
+    }
+
+    getRandomTip() {
+        const randomIndex = Math.floor(Math.random() * this.tips.length);
+        return this.tips[randomIndex];
+    }
+
+    showRandomTip() {
+        const tip = this.getRandomTip();
+        const tipsModal = document.getElementById('tips-modal');
+        const tipsTitle = document.getElementById('tips-title');
+        const tipsContent = document.getElementById('tips-content');
+
+        if (!tipsModal || !tipsTitle || !tipsContent) return;
+
+        tipsTitle.textContent = tip.title;
+        tipsContent.textContent = tip.content;
+        tipsModal.classList.remove('hidden');
+    }
+
 }
 
 // Инициализация приложения когда DOM загружен
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     window.app = new App();
     window.backupManager = window.app.backupManager;
     // Глобальные функции для кнопок Undo/Redo

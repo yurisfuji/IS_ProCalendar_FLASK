@@ -423,3 +423,39 @@
 .modal-header button:hover {
     transform: scale(1.1);
 }
+
+/* Анимации для модального окна подсказок */
+#tips-modal {
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+#tips-modal > div {
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Стили для кнопки подсказки */
+#tips-toggle {
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#tips-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}

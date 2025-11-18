@@ -23,7 +23,7 @@
                  alt="Logo"
                  onclick="app.navigateTo('home')"
                  class="w-20 h-20 object-contain mr-3 cursor-pointer">
-            <h1 class="text-2xl font-bold">Производственный календарь</h1>
+            <h1 class="text-2xl font-bold leading-[1]">Производственный календарь</h1>
         </div>
 
         <!-- Навигация и переключатель темы -->
@@ -90,7 +90,15 @@
            class="bg-blue-50 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transform transition-all duration-300 opacity-100 translate-x-0">
         <div class="sidebar-content">
             <div class="sidebar-scrollable p-4 flex flex-col mb-6">
-                <h2 class="text-lg font-semibold my-4 dark:text-white">Быстрые действия</h2>
+                <div class="flex space-x-1 items-start mt-6 mb-4">
+                    <h2 class="text-lg font-semibold dark:text-white">Быстрые действия</h2>
+                    <!-- Значок подсказки -->
+                    <button id="tips-toggle"
+                            class="w-4 h-4 bg-blue-200 dark:bg-blue-800 hover:bg-blue-300 dark:hover:bg-blue-700 text-blue-600 dark:text-blue-300 rounded-full flex items-center justify-center text-xs font-bold transition-colors tooltip"
+                            title="Показать подсказку">
+                        ?
+                    </button>
+                </div>
                 <div class="space-y-2 quick-actions">
                     <button class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg transition-colors text-left"
                             onclick="app.createNewType()">
@@ -176,7 +184,35 @@
         style="left: 200px; font-size: 2rem;" onclick="app.toggleSidebar()">
     «
 </button>
+<div id="tips-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-auto">
+        <!-- Заголовок модального окна -->
+        <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-white">💡 Полезная подсказка</h3>
+            <button id="tips-close" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
 
+        <!-- Контент подсказки -->
+        <div class="p-4">
+            <h4 id="tips-title" class="text-xl font-semibold text-blue-600 dark:text-blue-400 mb-3"></h4>
+            <p id="tips-content" class="text-gray-700 dark:text-gray-300 leading-relaxed"></p>
+        </div>
+
+        <!-- Футер модального окна -->
+        <div class="flex justify-between items-center p-4 border-t border-gray-200 dark:border-gray-700">
+            <button id="next-tip" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm font-medium">
+                Следующая подсказка
+            </button>
+            <button id="tips-ok" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                Понятно
+            </button>
+        </div>
+    </div>
+</div>
 <!-- Передаем данные темы в JavaScript -->
 <script>
     window.APP_CONFIG = {

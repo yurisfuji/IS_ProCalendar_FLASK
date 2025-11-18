@@ -336,7 +336,7 @@ export default class JobsManager {
                 await this.createHistorySnapshot('Удаление работы', ``);
 
                 await this.loadJobsData();
-                this.app.loadPage('jobs');
+                this.app.loadPage(this.app.currentPage);
             } else {
                 this.app.showNotification(`❌ ${result.error}`, 'error');
             }

@@ -1089,7 +1089,7 @@ export default class GanttManager {
             jobInfoElement.innerHTML = '<span class="text-gray-500">Кликните по работе для выбора</span>';
 
             // ОЧИЩАЕМ ДЕТАЛИ В SIDEBAR
-            this.aap.updateJobDetails(null);
+            this.app.updateJobDetails(null);
         }
 
         // Обновляем видимость кнопок
